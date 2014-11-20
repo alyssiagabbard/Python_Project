@@ -3,14 +3,26 @@
 from Tkinter import *
 root = Tk()
 
-drawpad = Canvas(root, width=800,height=600, background='white')
-player = drawpad.create_rectangle(390,580,410,600, fill="light blue")
-rocket1 = drawpad.create_rectangle(400,585,405,590)
+drawpad = Canvas(root, width=800,height=600, background='light blue')
+#Player 1
+player = drawpad.create_rectangle(390,580,410,600, fill="black")
+rocket1 = drawpad.create_rectangle(400,585,405,590 , fill= "black")
+rocket1Fired = False
+#Player 2
 player2= drawpad.create_rectangle(390,10,410,30, fill="black")
-enemy = drawpad.create_rectangle(50,300,100,310, fill="red")
+rocket2 = drawpad.create_rectangle(400,15,405,20, fill="black")
+rocket2Fired = False 
+#Enemies
+enemy = drawpad.create_rectangle(50,200,100,210, fill="red")
+enemy2 = drawpad.create_rectangle(700,300,770,310, fill = "red")
+enemy3 = drawpad.create_rectangle(50,375,100,385, fill = "red")
 direction = 5
+direction2= -5
+playersSpeed = 20
 
-
+#ScoreKeeping
+player1Score= 0 
+player2Score = 0
 class myApp(object):
     def __init__(self, parent):
         
@@ -19,36 +31,68 @@ class myApp(object):
         self.myContainer1 = Frame(parent)
         self.myContainer1.pack()
         
+        #Lable
+        self.prompt = "Player 1 Score :"                                     Player 2 Score : "
+        self.label1 = Label(root, text=self.prompt, width=len(self.prompt), bg='light green') 
+        self.label1.pack()
+        
+
+        
         drawpad.pack()
         root.bind_all('<Key>', self.key)
         self.animate()
         
-        def animate(self):
+    def animate(self):
             global drawpad
             global enemy
             global direction
-            global rocket
-            global rocket1Fired
-            didWeHit = self.collisionDetect()
+            global rocket1  
+            global rocket2
+            global rocket1Fired 
+            global rocket2Fired
+            global enemy2
+            global enemy3
+            global direction2
             x1,y1,x2,y2 = drawpad.coords(enemy)
+            ex1,ey1,ex2,ey2 = drawpad.coords(enemy2)
+            eex1,eey1,eex2,eey2 = drawpad.coords(enemy3)
             px1,py1,px2,py2 = drawpad.coords(player)
             rx1,ry1,rx2,ry2 = drawpad.coords(rocket1)
-
+            ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
+            rrx1,rry1,rrx2,rry2 = drawpad.coords(rocket2)
+            #Enemy1
             if x2 > 800:
                 direction = - 5
             elif x1 < 0:
                 direction = 5
-            elif didWeHit == True:
-                drawpad.delete(enemy)
-            elif rocket1Fired == True:
-                drawpad.move(rocket1,0,-5)
-            
-                if ry2<-5:
-                    drawpad.move(rocket1,px1-rx1+6,py1-ry1+6)
-                    rocket1Fired = False
+            #elif didWeHit == True:
+                #drawpad.delete(enemy)
                 
-        
+            #Enemy2
+            elif ex2 >800:
+                direction2 = -5
+            elif ex1<0:
+                direction2 = 5
+                
+            #Enemy3
+            elif eex2>800:
+                direction = -5
+            elif eex1<0:
+                direction = 5
+            
+            if rocket1Fired == True:
+                drawpad.move(rocket1,0,-10)
+                if ry2<-5:
+                    drawpad.move(rocket1,px1-rx1+6,py1-ry1+10)
+                    rocket1Fired = False
+            if rocket2Fired == True:
+                drawpad.move(rocket2,0,10)
+                if rry2>607:
+                    drawpad.move(rocket2,ppx1-rrx1+6,ppy1-rry1-7)
+                    rocket2Fired= False
+            drawpad.move(enemy3, direction, 0)
             drawpad.move(enemy, direction, 0)
+            drawpad.move(enemy2, direction2, 0)
             drawpad.after(5,self.animate)
         
         
@@ -56,29 +100,49 @@ class myApp(object):
         global player
         global rocket1Fired
         global drawpad
-        
+        global player2
+        global rocket2Fired
+        global playersSpeed
         px1,py1,px2,py2 = drawpad.coords(player)
+        ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
+        if event.keysym == "Up" and ppy1>10:
+            drawpad.move(player2, 0,-playersSpeed)
+            if rocket2Fired == False:
+                drawpad.move(rocket2, 0,-playersSpeed)
+        elif event.keysym == "Down" and ppy2 <590:
+            drawpad.move(player2, 0,playersSpeed)
+            if rocket2Fired == False:
+                    drawpad.move(rocket2, 0,playersSpeed)    
+        elif event.keysym == "Right" and ppx2<=780:
+            drawpad.move(player2, playersSpeed,0)
+            if rocket2Fired == False:
+                    drawpad.move(rocket2, playersSpeed,0)
+        elif event.keysym  == "Left" and ppx1>=10:
+            drawpad.move(player2,-playersSpeed,0)
+            if rocket2Fired == False:
+                    drawpad.move(rocket2, -playersSpeed,0)
+        if event.char == "0":
+            rocket2Fired = True
         if event.char == "w" and py1>0: #and didWeHit==False:
-            drawpad.move(player,0,-4)
+            drawpad.move(player,0,-playersSpeed)
             if rocket1Fired == False:                
-                drawpad.move(rocket1,0,-4)
+                drawpad.move(rocket1,0,-playersSpeed)
         elif event.char == "a" and px1>=0: #and didWeHit==False:
-            drawpad.move(player,-4,0)
+            drawpad.move(player,-playersSpeed,0)
             if rocket1Fired == False:
-                drawpad.move(rocket1,-4,0)
+                drawpad.move(rocket1,-playersSpeed,0)
         elif event.char == "s" and py2<600: #and didWeHit==False
-            drawpad.move(player,0,4)
+            drawpad.move(player,0,playersSpeed)
             if rocket1Fired == False:
-                drawpad.move(rocket1,0,4)
+                drawpad.move(rocket1,0,playersSpeed)
         elif event.char == "d" and px2<=800: #and didWeHit==False:
-            drawpad.move(player,4,0)
+            drawpad.move(player,playersSpeed,0)
             if rocket1Fired == False:
-                drawpad.move(rocket1,4,0)
-        elif event.char == " ":
+                drawpad.move(rocket1,playersSpeed,0)
+        if event.char == " ":
             rocket1Fired=True
-            self.rockets = self.rockets - 1
-            self.rocketsTxt.configure(text=self.rockets)
             
-            
+    
+        
 app = myApp(root)
 root.mainloop()
