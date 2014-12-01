@@ -21,8 +21,10 @@ direction2= -5
 playersSpeed = 20
 
 #ScoreKeeping
-player1Score= 0 
+player1Score = 0 
 player2Score = 0
+
+    
 class myApp(object):
     def __init__(self, parent):
         
@@ -32,7 +34,7 @@ class myApp(object):
         self.myContainer1.pack()
         
         #Lable
-        self.prompt = "Player 1 Score :"                                     Player 2 Score : "
+        self.prompt = "Player 1 Score : " + str(player1Score) + "                                    Player 2 Score : " + str(player2Score)
         self.label1 = Label(root, text=self.prompt, width=len(self.prompt), bg='light green') 
         self.label1.pack()
         
@@ -41,7 +43,7 @@ class myApp(object):
         drawpad.pack()
         root.bind_all('<Key>', self.key)
         self.animate()
-        
+    
     def animate(self):
             global drawpad
             global enemy
@@ -53,6 +55,8 @@ class myApp(object):
             global enemy2
             global enemy3
             global direction2
+            global player1Score
+            global player2Score
             x1,y1,x2,y2 = drawpad.coords(enemy)
             ex1,ey1,ex2,ey2 = drawpad.coords(enemy2)
             eex1,eey1,eex2,eey2 = drawpad.coords(enemy3)
@@ -60,6 +64,11 @@ class myApp(object):
             rx1,ry1,rx2,ry2 = drawpad.coords(rocket1)
             ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
             rrx1,rry1,rrx2,rry2 = drawpad.coords(rocket2)
+            
+            player1ScoreAdd = self.rocket1PlayerHit()
+            if player1ScoreAdd == True:
+                player1Score = player1Score + 1 
+            
             #Enemy1
             if x2 > 800:
                 direction = - 5
@@ -79,32 +88,48 @@ class myApp(object):
                 direction = -5
             elif eex1<0:
                 direction = 5
-            
+            #Rockets
+            rocket1HitE = self.rocketHit()
+            rocket2HitE = self.rocket2Hit()
             if rocket1Fired == True:
                 drawpad.move(rocket1,0,-10)
                 if ry2<-5:
                     drawpad.move(rocket1,px1-rx1+6,py1-ry1+10)
                     rocket1Fired = False
+                    
+                if rocket1HitE == True:
+                    
+                    drawpad.move(rocket1,px1-rx1+6,py1-ry1+10)
+                    rocket1Fired = False
+                      
             if rocket2Fired == True:
                 drawpad.move(rocket2,0,10)
                 if rry2>607:
                     drawpad.move(rocket2,ppx1-rrx1+6,ppy1-rry1-7)
                     rocket2Fired= False
+                    
+                if rocket2HitE == True:
+                    
+                    drawpad.move(rocket2,ppx1-rrx1+6,ppy1-rry1-7)
+                    rocket2Fired = False
+                    
             drawpad.move(enemy3, direction, 0)
             drawpad.move(enemy, direction, 0)
             drawpad.move(enemy2, direction2, 0)
             drawpad.after(5,self.animate)
         
         
-    def key(self,event):
+    def key(self,event):                                                      
         global player
-        global rocket1Fired
+        global rocket1Fired                                                                                                                                                                 
         global drawpad
         global player2
         global rocket2Fired
         global playersSpeed
+        global player1Score
         px1,py1,px2,py2 = drawpad.coords(player)
         ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
+        # Player 2
         if event.keysym == "Up" and ppy1>10:
             drawpad.move(player2, 0,-playersSpeed)
             if rocket2Fired == False:
@@ -123,6 +148,7 @@ class myApp(object):
                     drawpad.move(rocket2, -playersSpeed,0)
         if event.char == "0":
             rocket2Fired = True
+        # Player 1
         if event.char == "w" and py1>0: #and didWeHit==False:
             drawpad.move(player,0,-playersSpeed)
             if rocket1Fired == False:                
@@ -142,7 +168,65 @@ class myApp(object):
         if event.char == " ":
             rocket1Fired=True
             
-    
+    def rocketHit (self):
+        global rocket1
+        global enemy1 
+        global enemy2 
+        global enemy3
+        x1,y1,x2,y2 = drawpad.coords(enemy)
+        ex1,ey1,ex2,ey2 = drawpad.coords(enemy2)
+        eex1,eey1,eex2,eey2 = drawpad.coords(enemy3)
+        rx1,ry1,rx2,ry2 = drawpad.coords(rocket1)
+        if rx1 > x1 and rx2 < x2:
+            return True
+        elif ry1 < y1 and ry2 > y2 :
+            return True
+        elif rx1 > ex1 and rx2 < ex2:
+            return True 
+        elif ry2 > ey2 and ry1 < ey1:
+            return True
+        elif rx1 > eex1 and rx2 < eex2:
+            return True 
+        elif ry2 > eey2 and ry1 < eey1:
+            return True
+        else:
+            return False
+            
+            
+    def rocket2Hit (self):
+        global rocket2
+        global enemy1 
+        global enemy2 
+        global enemy3
+        x1,y1,x2,y2 = drawpad.coords(enemy)
+        ex1,ey1,ex2,ey2 = drawpad.coords(enemy2)
+        eex1,eey1,eex2,eey2 = drawpad.coords(enemy3)
+        rrx1,rry1,rrx2,rry2 = drawpad.coords(rocket2)
+        if rrx1 > x1 and rrx2 < x2:
+            return True
+        elif rry2 > y2 and rry1 < y1:
+            return True
+        elif rrx1 > ex1 and rrx2 < ex2:
+            return True
+        elif rry2 > ey2 and rry1 < ey1:
+            return True
+        elif rrx1 > eex1 and rrx2 < eex2:
+            return True
+        elif rry2 > eey2 and rry1 < eey1:
+            return True
+        else:
+            return False
         
+    
+    #Player Score
+    def rocket1PlayerHit (self):
+        global rocket1
+        global player2
+        rx1,ry1,rx2,ry2 = drawpad.coords(rocket1)
+        ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
+        if rx1 > ppx1 and rx2 < ppx2 and ry1 < ppy2 and ry2 > ppy2:
+            return True 
+        else:
+            return False                  
 app = myApp(root)
 root.mainloop()
