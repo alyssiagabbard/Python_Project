@@ -1,9 +1,12 @@
-# Hello world
+# Hello world = $wag mon3y
 
 from Tkinter import *
 root = Tk()
+import random
+
 
 drawpad = Canvas(root, width=800,height=600, background='light blue')
+player2Side = drawpad.create_rectangle(800,600,0,300, fill='light pink')
 #Player 1
 player = drawpad.create_rectangle(390,580,410,600, fill="black")
 rocket1 = drawpad.create_rectangle(400,585,405,590 , fill= "black")
@@ -16,13 +19,11 @@ rocket2Fired = False
 enemy = drawpad.create_rectangle(50,200,100,210, fill="red")
 enemy2 = drawpad.create_rectangle(700,300,770,310, fill = "red")
 enemy3 = drawpad.create_rectangle(50,375,100,385, fill = "red")
-direction = 5
-direction2= -5
+direction = random.randint(5,10)
+direction2= random.randint(-10,-5)
 playersSpeed = 20
 
 #ScoreKeeping
-player1Score = 0 
-player2Score = 0
 
     
 class myApp(object):
@@ -34,7 +35,9 @@ class myApp(object):
         self.myContainer1.pack()
         
         #Lable
-        self.prompt = "Player 1 Score : " + str(player1Score) + "                                    Player 2 Score : " + str(player2Score)
+        self.player1Score = 0
+        self.player2Score = 0
+        self.prompt = "Player 1 Score : " + str(self.player1Score) + "                                    Player 2 Score : " + str(self.player2Score)
         self.label1 = Label(root, text=self.prompt, width=len(self.prompt), bg='light green') 
         self.label1.pack()
         
@@ -65,29 +68,46 @@ class myApp(object):
             ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
             rrx1,rry1,rrx2,rry2 = drawpad.coords(rocket2)
             
+            #Player Score
             player1ScoreAdd = self.rocket1PlayerHit()
             if player1ScoreAdd == True:
-                player1Score = player1Score + 1 
+                self.player1Score = self.player1Score + 1 
+                self.prompt = "Player 1 Score : " + str(self.player1Score) + "                                    Player 2 Score : " + str(self.player2Score)
+                self.label1.configure(text=self.prompt)
+                
+                player1ScoreAdd = False
+                
+            player2ScoreAdd = self.rocket2PlayerHit()
+            if player2ScoreAdd == True:
+                self.player2Score = self.player2Score + 1
+                self.prompt = "Player 1 Score : " + str(self.player1Score) + "                                    Player 2 Score : " + str(self.player2Score)
+                self.label1.configure(text=self.prompt)
+                
+                player2ScoreAdd = False
+                
+            if self.player1Score == 3 and self.player2Score == 2:
+                self.player1Score = self.player1Score - 1
+            player1ScoreAdd = self.rocket1PlayerHit()
             
             #Enemy1
             if x2 > 800:
-                direction = - 5
+                direction = -direction
             elif x1 < 0:
-                direction = 5
+                direction = direction * -1
             #elif didWeHit == True:
                 #drawpad.delete(enemy)
                 
             #Enemy2
             elif ex2 >800:
-                direction2 = -5
+                direction2 = -direction2
             elif ex1<0:
-                direction2 = 5
+                direction2 = direction2 * -1
                 
             #Enemy3
             elif eex2>800:
-                direction = -5
+                direction = -direction
             elif eex1<0:
-                direction = 5
+                direction = direction * -1
             #Rockets
             rocket1HitE = self.rocketHit()
             rocket2HitE = self.rocket2Hit()
@@ -112,7 +132,7 @@ class myApp(object):
                     
                     drawpad.move(rocket2,ppx1-rrx1+6,ppy1-rry1-7)
                     rocket2Fired = False
-                    
+                
             drawpad.move(enemy3, direction, 0)
             drawpad.move(enemy, direction, 0)
             drawpad.move(enemy2, direction2, 0)
@@ -126,7 +146,6 @@ class myApp(object):
         global player2
         global rocket2Fired
         global playersSpeed
-        global player1Score
         px1,py1,px2,py2 = drawpad.coords(player)
         ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
         # Player 2
@@ -167,6 +186,13 @@ class myApp(object):
                 drawpad.move(rocket1,playersSpeed,0)
         if event.char == " ":
             rocket1Fired=True
+        if self.player1Score == 10:
+            playersSpeed = 0
+            self.label1.configure(text="Player 1 Wins!")
+        if self.player2Score == 10:
+            playersSpeed = 0
+            self.label1.configure(text="Player 2 Wins!")
+            
             
     def rocketHit (self):
         global rocket1
@@ -224,9 +250,18 @@ class myApp(object):
         global player2
         rx1,ry1,rx2,ry2 = drawpad.coords(rocket1)
         ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
-        if rx1 > ppx1 and rx2 < ppx2 and ry1 < ppy2 and ry2 > ppy2:
+        if rx1 > ppx1 and rx2 < ppx2 and ry1 < ppy2 and ry2>ppy1:
             return True 
         else:
-            return False                  
+            return False 
+    def rocket2PlayerHit (self):
+        global rocket2
+        global player 
+        rrx1,rry1,rrx2,rry2 = drawpad.coords(rocket2)  
+        px1,py1,px2,py2 = drawpad.coords(player)
+        if rrx1 > px1 and rrx2 < px2 and rry1 < py2 and rry2 > py1:
+            return True 
+        else:
+            return False            
 app = myApp(root)
 root.mainloop()
