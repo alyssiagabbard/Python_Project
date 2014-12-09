@@ -6,9 +6,13 @@ import random
 
 
 drawpad = Canvas(root, width=800,height=600, background='light blue')
-player2Side = drawpad.create_rectangle(800,600,0,300, fill='light pink')
+player2Side = drawpad.create_rectangle(850,650,0,300, fill='light pink')
+box1 = drawpad.create_rectangle(-100,-100, 100, 100, fill = 'light pink')
+box2 = drawpad.create_rectangle(850,-100,700,100, fill = 'light pink')
+box3 = drawpad.create_rectangle(-100,650,100,500, fill = 'light blue')
+box4 = drawpad.create_rectangle(700,500,900,700, fill = 'light blue' )
 #Player 1
-player = drawpad.create_rectangle(390,580,410,600, fill="black")
+player = drawpad.create_rectangle(390,570,410,590, fill="black")
 rocket1 = drawpad.create_rectangle(400,585,405,590 , fill= "black")
 rocket1Fired = False
 #Player 2
@@ -17,7 +21,7 @@ rocket2 = drawpad.create_rectangle(400,15,405,20, fill="black")
 rocket2Fired = False 
 #Enemies
 enemy = drawpad.create_rectangle(50,200,100,210, fill="red")
-enemy2 = drawpad.create_rectangle(700,300,770,310, fill = "red")
+enemy2 = drawpad.create_rectangle(700,295,770,305, fill = "red")
 enemy3 = drawpad.create_rectangle(50,375,100,385, fill = "red")
 direction = random.randint(5,10)
 direction2= random.randint(-10,-5)
@@ -40,9 +44,8 @@ class myApp(object):
         self.prompt = "Player 1 Score : " + str(self.player1Score) + "                                    Player 2 Score : " + str(self.player2Score)
         self.label1 = Label(root, text=self.prompt, width=len(self.prompt), bg='light green') 
         self.label1.pack()
-        
-
-        
+		
+	
         drawpad.pack()
         root.bind_all('<Key>', self.key)
         self.animate()
@@ -89,6 +92,7 @@ class myApp(object):
                 self.player1Score = self.player1Score - 1
             player1ScoreAdd = self.rocket1PlayerHit()
             
+            
             #Enemy1
             if x2 > 800:
                 direction = -direction
@@ -132,6 +136,7 @@ class myApp(object):
                     
                     drawpad.move(rocket2,ppx1-rrx1+6,ppy1-rry1-7)
                     rocket2Fired = False
+                    
                 
             drawpad.move(enemy3, direction, 0)
             drawpad.move(enemy, direction, 0)
@@ -149,11 +154,11 @@ class myApp(object):
         px1,py1,px2,py2 = drawpad.coords(player)
         ppx1,ppy1,ppx2,ppy2 = drawpad.coords(player2)
         # Player 2
-        if event.keysym == "Up" and ppy1>10:
+        if event.keysym == "Up" and ppy1>0:
             drawpad.move(player2, 0,-playersSpeed)
             if rocket2Fired == False:
                 drawpad.move(rocket2, 0,-playersSpeed)
-        elif event.keysym == "Down" and ppy2 <590:
+        elif event.keysym == "Down" and ppy2 <280:
             drawpad.move(player2, 0,playersSpeed)
             if rocket2Fired == False:
                     drawpad.move(rocket2, 0,playersSpeed)    
@@ -168,7 +173,7 @@ class myApp(object):
         if event.char == "0":
             rocket2Fired = True
         # Player 1
-        if event.char == "w" and py1>0: #and didWeHit==False:
+        if event.char == "w" and py1>310: #and didWeHit==False:
             drawpad.move(player,0,-playersSpeed)
             if rocket1Fired == False:                
                 drawpad.move(rocket1,0,-playersSpeed)
@@ -186,10 +191,10 @@ class myApp(object):
                 drawpad.move(rocket1,playersSpeed,0)
         if event.char == " ":
             rocket1Fired=True
-        if self.player1Score == 10:
+        if self.player1Score >= 10:
             playersSpeed = 0
             self.label1.configure(text="Player 1 Wins!")
-        if self.player2Score == 10:
+        if self.player2Score >= 10:
             playersSpeed = 0
             self.label1.configure(text="Player 2 Wins!")
             
@@ -262,6 +267,9 @@ class myApp(object):
         if rrx1 > px1 and rrx2 < px2 and rry1 < py2 and rry2 > py1:
             return True 
         else:
-            return False            
+            return False         
+            
+
+
 app = myApp(root)
 root.mainloop()
