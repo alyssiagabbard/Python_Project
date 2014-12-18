@@ -1,4 +1,4 @@
-# Hello world = $wag mon3y
+ # Hello world = $wag mon3y
 
 from Tkinter import *
 root = Tk()
@@ -89,7 +89,7 @@ class myApp(object):
                 player2ScoreAdd = False
                 
             if self.player1Score == 3 and self.player2Score == 2:
-                self.player1Score = self.player1Score - 1
+                self.player1Score = self.player1Score + 1
             player1ScoreAdd = self.rocket1PlayerHit()
             
             
